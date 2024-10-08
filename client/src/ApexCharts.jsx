@@ -107,6 +107,7 @@ class ApexChart extends Component {
   render() {
     return (
       <div id="chart">
+        <h2>Users Detail Chart</h2>
         <ReactApexChart options={this.state.options} series={this.state.series} type="bar" height={350} />
       </div>
     );

@@ -39,19 +39,36 @@ module.exports = {
 
     servicelist: async (req, res) => {
         try {
-            const services = await Services.find()
-                .populate('cat_id', 'name')
-                .exec();
+            const page = parseInt(req.query.page) || 1;
+            const size = parseInt(req.query.size) || 5;
+            const skip = (page - 1) * size;
 
-                res.status(200).json({
-                    success: true,
-                    message: "Services retrieved successfully",
-                    body: services});
+            const totalCount = await Services.countDocuments({});
+    
+            const data = await Services.find({})
+                .populate('cat_id', 'name')
+                .skip(skip)
+                .limit(size)
+                .exec();
+    
+            const totalPages = Math.ceil(totalCount / size);
+    
+            return helper.success(res, "All services detail", {
+                data,
+                pagination: {
+                    totalCount,
+                    totalPages,
+                    currentPage: page,
+                    pageSize: size
+                }
+            });
+    
         } catch (error) {
             console.error("Error retrieving services:", error);
             return helper.error(res, "Internal server error");
         }
     },
+    
 
     serviceView: async (req, res) => {
         try {

@@ -38,7 +38,7 @@ const Sidebar = () => {
               textDecoration: "none",
             }}
           >
-            <img
+            {/* <img
               src="../assets/img/avatar/avatar-1.png"
               alt="Stisla"
               style={{
@@ -47,7 +47,7 @@ const Sidebar = () => {
                 borderRadius: "50%",
                 marginBottom: "2px",
               }}
-            />
+            /> */}
             <span style={{ color: "black", fontSize: "16px" }}>Stisla</span>
           </Link>
         </div>
@@ -68,7 +68,7 @@ const Sidebar = () => {
           >
             <Link to="/userlist" onClick={() => handleClick("/userlist")}>
               <i className="fas fa-users"></i>
-              <span>User List</span>
+              <span>Users</span>
             </Link>
           </li>
           <li
@@ -76,7 +76,7 @@ const Sidebar = () => {
           >
             <Link to="/provider" onClick={() => handleClick("/provider")}>
               <i className="fas fa-user-md"></i>
-              <span>Provider List</span>
+              <span>Providers</span>
             </Link>
           </li>
           <li
@@ -84,7 +84,7 @@ const Sidebar = () => {
           >
             <Link to="/worker" onClick={() => handleClick("/worker")}>
               <i className="fas fa-user-tie"></i> 
-              <span>Worker List</span>
+              <span>Workers</span>
             </Link>
           </li>
           <li
@@ -92,7 +92,7 @@ const Sidebar = () => {
           >
             <Link to="/categeorylist" onClick={() => handleClick("/categeorylist")}>
               <i className="fas fa-list-alt"></i> 
-              <span>Category List</span> 
+              <span>Categories</span> 
             </Link>
           </li>
           <li
@@ -100,7 +100,7 @@ const Sidebar = () => {
           >
             <Link to="/services" onClick={() => handleClick("/services")}>
               <i className="fas fa-cogs"></i> 
-              <span>Service List</span>
+              <span>Services</span>
             </Link>
           </li>
           <li
@@ -108,7 +108,7 @@ const Sidebar = () => {
           >
             <Link to="/booking" onClick={() => handleClick("/booking")}>
               <i className="fas fa-calendar-check"></i> 
-              <span>Booking List</span>
+              <span>Bookings</span>
             </Link>
           </li>
           <li
@@ -116,7 +116,15 @@ const Sidebar = () => {
           >
             <Link to="/carlist" onClick={() => handleClick("/carlist")}>
               <i className="fas fa-car"></i> 
-              <span>Car List</span>
+              <span>Cars</span>
+            </Link>
+          </li>
+          <li
+            className={`nav-item ${activeMenu === "/getcontact" ? "active" : ""}`}
+          >
+            <Link to="/getcontact" onClick={() => handleClick("/getcontact")}>
+              <i className="fas fa-phone"></i>
+              <span>Contact Us</span>
             </Link>
           </li>
           <li
@@ -138,7 +146,7 @@ const Sidebar = () => {
           <li className={`nav-item ${activeMenu === "/terms" ? "active" : ""}`}>
             <Link to="/terms" onClick={() => handleClick("/terms")}>
               <i className="fas fa-file-contract"></i>
-              <span>Terms and Conditions</span>
+              <span>Terms & Conditions</span>
             </Link>
           </li>
         </ul>

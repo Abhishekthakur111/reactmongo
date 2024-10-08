@@ -9,18 +9,25 @@ const BASE_URL = "http://localhost:8000";
 
 const Userlist = () => {
   const [users, setUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize] = useState(5); 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
 
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     try {
-      const response = await axios.get(`${BASE_URL}/user_list`);
+      const response = await axios.get(`${BASE_URL}/user_list`, {
+        params: { page, size: pageSize }
+      });
+
       if (response.data.success) {
-        setUsers(response.data.body);
+        setUsers(response.data.body.data);
+        setTotalPages(response.data.body.pagination.totalPages);
       } else {
         Swal.fire("Error", response.data.message || "Failed to load users", "error");
       }
@@ -44,7 +51,7 @@ const Userlist = () => {
     if (result.isConfirmed) {
       try {
         await axios.delete(`${BASE_URL}/user_delete/${_id}`);
-        fetchData();
+        fetchData(currentPage);
         Swal.fire("Deleted!", "User has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error!", error.response?.data?.message || "Error deleting user", "error");
@@ -64,7 +71,7 @@ const Userlist = () => {
       });
 
       if (response.data.success) {
-        fetchData();
+        fetchData(currentPage);
         toast.success(`User status changed to ${newStatus === "0" ? "Active" : "Inactive"}`);
       } else {
         toast.error(response.data.message || "Failed to change status");
@@ -81,6 +88,10 @@ const Userlist = () => {
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <>
@@ -99,7 +110,7 @@ const Userlist = () => {
         <div className="main-content">
           <section className="section">
             <div className="section-header">
-              <h1>User List</h1>
+              <h1>Users</h1>
               <div className="ml-auto">
                 <input
                   type="text"
@@ -130,7 +141,7 @@ const Userlist = () => {
                       <tbody>
                         {filteredUsers.map((user, index) => (
                           <tr key={user._id}>
-                            <td>{index + 1}</td>
+                            <td>{(currentPage - 1) * pageSize + index + 1}</td>
                             <td>
                             {user.image ? (
                               <img
@@ -140,7 +151,6 @@ const Userlist = () => {
                                   height:"50px",
                                   borderRadius:'50%'
                                 }}
-                                
                               />
                             ) : (
                               "No Image"
@@ -191,28 +201,20 @@ const Userlist = () => {
                 <div className="card-footer text-right">
                   <nav className="d-inline-block">
                     <ul className="pagination mb-0">
-                      <li className="page-item disabled">
-                        <a className="page-link" href="#" tabIndex={-1}>
+                      <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                        <a className="page-link" href="#" onClick={() => handlePageChange(currentPage - 1)}>
                           <i className="fas fa-chevron-left" />
                         </a>
                       </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1 <span className="sr-only">(current)</span>
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
+                      {[...Array(totalPages).keys()].map(page => (
+                        <li key={page} className={`page-item ${currentPage === page + 1 ? "active" : ""}`}>
+                          <a className="page-link" href="#" onClick={() => handlePageChange(page + 1)}>
+                            {page + 1}
+                          </a>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                        <a className="page-link" href="#" onClick={() => handlePageChange(currentPage + 1)}>
                           <i className="fas fa-chevron-right" />
                         </a>
                       </li>

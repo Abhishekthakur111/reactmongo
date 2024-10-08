@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const CategoryAdd = () => {
   const [data, setData] = useState({
     name: '',
-    image: null,
+    image: null, 
   });
   const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
@@ -43,9 +43,9 @@ const CategoryAdd = () => {
         },
       });
 
-      console.log('Response:', response.data);
       if (response.data.success) {
         toast.success('Category added successfully!');
+        console.log('Toast for success triggered')
         navigate('/categeorylist');
       } else {
         toast.error('Category creation failed: ' + response.data.message);
@@ -127,7 +127,7 @@ const CategoryAdd = () => {
                               Back
                             </button>
                             <button type="submit" className="btn btn-primary">
-                              Add Category
+                              Add 
                             </button>
                           </div>
                         </form>

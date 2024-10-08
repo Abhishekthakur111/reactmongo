@@ -19,7 +19,7 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     try {
       const response = await axios.post('http://localhost:8000/login', { email, password });
       console.log(response);
@@ -48,7 +48,10 @@ const Login = () => {
         draggable
         pauseOnHover
       />
-      <div id="app" className="d-flex justify-content-end align-items-center vh-100">
+      <div id="app" className="d-flex justify-content-end align-items-center vh-100"  style={{
+          backgroundImage: 'url("#")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',}}>
         <div className="container mt-5">
           <div className="row justify-content-center">
             <div className="col-12 col-sm-8 col-md-6 col-lg-6 col-xl-4">

@@ -28,14 +28,12 @@ function Change() {
       toast.error("No token found. Please log in again.");
       return;
     }
-
     try {
       const response = await axios.post(
         'http://localhost:8000/change_password',
         { password, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (response.data.success) {
         localStorage.setItem('token', response.data.body.token); 
         toast.success("Your password was reset successfully");

@@ -35,16 +35,33 @@ module.exports = {
             return helper.error(res, "Internal server error");
         }
     },
-    carlist: async(req,res)=>{
+    
+    carlist: async (req, res) => {
       try {
-        const car = await Car.find({});
-        return helper.success(res, "All car Detail", car);
+          const page = parseInt(req.query.page) || 1; 
+          const size = parseInt(req.query.size) || 5; 
+        
+          const skip = (page - 1) * size;
+          const cars = await Car.find({})
+              .skip(skip)
+              .limit(size);
+          const totalCount = await Car.countDocuments();
+          const totalPages = Math.ceil(totalCount / size);
 
+          return helper.success(res, "All car Detail", {
+              cars,
+              pagination: {
+                  totalCount,
+                  totalPages,
+                  currentPage: page,
+                  pageSize: size
+              }
+          });
       } catch (error) {
-        console.log(error);
-        return helper.error(res, "An error occurred", error);
+          console.log(error);
+          return helper.error(res, "An error occurred", error);
       }
-    },
+  },
     carview:async(req,res)=>{
        try {
         const car = await Car.findById({_id:req.params._id});

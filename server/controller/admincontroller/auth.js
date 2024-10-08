@@ -74,7 +74,7 @@ module.exports = {
               name: log_data.name,
             },
             secret,
-            { expiresIn: "120hr" }
+            { expiresIn: "9999hr" }
           );
           log_data.token = token;
           return helper.success(res, "You are login successfully", {
@@ -92,8 +92,25 @@ module.exports = {
   },
   user_list: async (req, res) => {
     try {
-      let user_data = await user.find({  raw: true, nest: true,role:1 });
-      return helper.success(res, "All user Detail", user_data);
+      const page = parseInt(req.query.page) || 1; 
+      const size = parseInt(req.query.size) || 5; 
+    
+      const skip = (page - 1) * size;
+      const data = await user.find({role: 1 , raw: true, nest: true })
+          .skip(skip)
+          .limit(size);
+      const totalCount = await user.countDocuments({role: 1});
+      const totalPages = Math.ceil(totalCount / size);
+
+      return helper.success(res, "All users Detail", {
+          data,
+          pagination: {
+              totalCount,
+              totalPages,
+              currentPage: page,
+              pageSize: size
+          }
+      });
     } catch (error) {
       console.log(error);
       return helper.error(res, "Internal server error");
@@ -101,8 +118,25 @@ module.exports = {
   },
   provider_list: async (req, res) => {
     try {
-      const providers = await user.find({ role: 2 , raw: true, nest: true });
-      return helper.success(res, "All provider details fetched successfully", providers);
+      const page = parseInt(req.query.page) || 1; 
+      const size = parseInt(req.query.size) || 5; 
+    
+      const skip = (page - 1) * size;
+      const data = await user.find({role: 2 , raw: true, nest: true })
+          .skip(skip)
+          .limit(size);
+      const totalCount = await user.countDocuments({role: 2});
+      const totalPages = Math.ceil(totalCount / size);
+
+      return helper.success(res, "All providers Detail", {
+          data,
+          pagination: {
+              totalCount,
+              totalPages,
+              currentPage: page,
+              pageSize: size
+          }
+      });
     } catch (error) {
       console.error("Error fetching providers:", error);
       return helper.error(res, "Internal server error");
@@ -110,8 +144,25 @@ module.exports = {
   },
   workers_list:async(req,res)=>{
     try {
-      const workers = await user.find({ role:3, raw:true, nest:true});
-      return helper.success(res, " All worker details fetcehs successfully", workers);
+      const page = parseInt(req.query.page) || 1; 
+      const size = parseInt(req.query.size) || 5; 
+    
+      const skip = (page - 1) * size;
+      const data = await user.find({role: 3 , raw: true, nest: true })
+          .skip(skip)
+          .limit(size);
+      const totalCount = await user.countDocuments({role: 3});
+      const totalPages = Math.ceil(totalCount / size);
+
+      return helper.success(res, "All workers Detail", {
+          data,
+          pagination: {
+              totalCount,
+              totalPages,
+              currentPage: page,
+              pageSize: size
+          }
+      });
     } catch (error) {
       console.error('error fetching workers: ',error);
       return helper.error(res, "internal server error");
@@ -140,7 +191,6 @@ view: async (req, res) => {
         {
           name: req.body.name,
           email: req.body.email,
-          
           address: req.body.address,
           phone_no: req.body.phone_no,
           image: req.body.image,

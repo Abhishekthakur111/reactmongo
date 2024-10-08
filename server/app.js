@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 const path = require('path');
 var fileUpload = require('express-fileupload');
 const cors = require('cors');
+const flash = require('express-flash');
 
 const indexRouter = require('./router/index');
 
@@ -16,7 +17,7 @@ const port = process.env.port
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(flash());
 app.use(fileUpload());
 app.use(bodyParser.urlencoded({extended : true}));
 

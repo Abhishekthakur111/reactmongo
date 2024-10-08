@@ -10,17 +10,27 @@ const BASE_URL = "http://localhost:8000";
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/catergeorylist`);
+      const response = await axios.get(`${BASE_URL}/catergeorylist`, {
+        params: {
+          page: currentPage,
+          size: pageSize
+        }
+      });
+
       if (response.data.success) {
-        setCategories(response.data.body);
+        setCategories(response.data.body.data);
+        setTotalPages(response.data.body.pagination.totalPages);
       } else {
         Swal.fire("Error", response.data.message || "Failed to load categories", "error");
       }
@@ -83,7 +93,13 @@ const CategoryList = () => {
   );
 
   const handleAddCategory = () => {
-    navigate('/createcategory'); 
+    navigate('/createcategory');
+  };
+
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
@@ -103,9 +119,9 @@ const CategoryList = () => {
         <div className="main-content">
           <section className="section">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h1>Category List</h1>
+              <h1>Categories</h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button
+                <button
                   onClick={handleAddCategory}
                   className="btn btn-primary"
                 >
@@ -119,7 +135,6 @@ const CategoryList = () => {
                   onChange={handleSearch}
                   style={{ flex: 1 }}
                 />
-
               </div>
             </div>
             <div className="section-body">
@@ -139,7 +154,7 @@ const CategoryList = () => {
                       <tbody>
                         {filteredCategories.map((category, index) => (
                           <tr key={category._id}>
-                            <td>{index + 1}</td>
+                            <td>{(currentPage - 1) * pageSize + index + 1}</td>
                             <td>{category.name}</td>
                             <td>
                               {category.image ? (
@@ -154,9 +169,7 @@ const CategoryList = () => {
                             </td>
                             <td>
                               <button
-                                className={`has-icon btn btn-success  ${
-                                  category.status === "0" ? "btn-success" : "btn-danger"
-                                }`}
+                                className={`has-icon btn btn-success ${category.status === "0" ? "btn-success" : "btn-danger"}`}
                                 onClick={() =>
                                   toggleStatus(category._id, category.status)
                                 }
@@ -188,28 +201,34 @@ const CategoryList = () => {
                 <div className="card-footer text-right">
                   <nav className="d-inline-block">
                     <ul className="pagination mb-0">
-                      <li className="page-item disabled">
-                        <a className="page-link" href="#" tabIndex={-1}>
+                      <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                        <a
+                          className="page-link"
+                          href="#"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          tabIndex={-1}
+                        >
                           <i className="fas fa-chevron-left" />
                         </a>
                       </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1 <span className="sr-only">(current)</span>
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
+                      {[...Array(totalPages).keys()].map((page) => (
+                        <li key={page + 1} className={`page-item ${currentPage === page + 1 ? "active" : ""}`}>
+                          <a
+                            className="page-link"
+                            href="#"
+                            onClick={() => handlePageChange(page + 1)}
+                          >
+                            {page + 1}
+                            {currentPage === page + 1 && <span className="sr-only">(current)</span>}
+                          </a>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                        <a
+                          className="page-link"
+                          href="#"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                        >
                           <i className="fas fa-chevron-right" />
                         </a>
                       </li>

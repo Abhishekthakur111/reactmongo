@@ -16,7 +16,7 @@ module.exports = {
       let errorsResponse = await helper.checkValidation(v);
       if (errorsResponse) {
         return helper.error(res, errorsResponse);
-      } 
+      }
 
       const find_email = await user.findOne({ email: req.body.email });
       if (find_email) {

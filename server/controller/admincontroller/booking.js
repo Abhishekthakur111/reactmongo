@@ -60,7 +60,14 @@ const createBooking = async (req, res) => {
 
 const bookinglist = async (req, res) => {
     try {
+        const { page = 1, size = 5 } = req.query; 
+        const limit = parseInt(size, 10);
+        const skip = (parseInt(page, 10) - 1) * limit;
+
+        const totalCount = await Booking.countDocuments();
         const bookings = await Booking.find()
+            .skip(skip)
+            .limit(limit)
             .populate('user_id')
             .populate('service_id') 
             .populate('car_id')     
@@ -69,13 +76,22 @@ const bookinglist = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Booking retrieved successfully",
-            body: bookings
+            body: {
+                data: bookings,
+                pagination: {
+                    totalCount,
+                    totalPages: Math.ceil(totalCount / limit),
+                    currentPage: parseInt(page, 10),
+                    pageSize: limit
+                }
+            }
         });
     } catch (error) {
         console.error("Error retrieving booking:", error);
         return helper.error(res, "Internal server error");
     }
 };
+
 
 const bookingView = async (req, res) => {
     try {

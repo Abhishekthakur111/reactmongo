@@ -25,6 +25,9 @@ import BookingList from "./booking/BookingList";
 import BookingView from "./booking/BookingView";
 import CarList from "./car/CarList";
 import CarView from "./car/CarView";
+import ContactUs from "./admin/ContactUs";
+import ContactView from "./admin/ContactView";
+import CarAdd from "./car/CarAdd";
 
 
 function App() {
@@ -37,7 +40,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/userlist" element={<Userlist />} />
             <Route path="/changepassword" element={<ChangePassword />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<Profile />} /> 
             <Route path="/viewuser/:_id" element={<View />} />
             <Route path="/edituser/:_id" element={<Edit />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -57,6 +60,9 @@ function App() {
             <Route path="/booking/:_id" element={<BookingView/>}/>
             <Route path="/carlist" element={<CarList/>}/>
             <Route path="/carview/:_id" element={<CarView/>}/>
+            <Route path="/getcontact" element={<ContactUs/>}/>
+            <Route path="/viewcontact/:_id" element={<ContactView/>}/>
+            <Route path="/createcar" element={<CarAdd/>}/>
           </Route>
         </Route>
       </Routes>

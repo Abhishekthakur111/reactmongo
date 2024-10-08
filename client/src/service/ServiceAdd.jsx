@@ -170,7 +170,7 @@ const ServiceAdd = () => {
                           Back
                         </button>
                         <button type="submit" className="btn btn-primary">
-                          Add Service
+                          Add 
                         </button>
                       </div>
                     </form>

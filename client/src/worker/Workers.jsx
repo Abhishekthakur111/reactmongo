@@ -8,20 +8,37 @@ import "react-toastify/dist/ReactToastify.css";
 const BASE_URL = "http://localhost:8000";
 
 const Workers = () => {
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [workers, setWorkers] = useState([]); 
+  const [workers, setWorkers] = useState([]);
+  const [pagination, setPagination] = useState({
+    totalCount: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 5
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [pagination.currentPage]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/worker`); 
+      const response = await axios.get(`${BASE_URL}/worker`, {
+        params: {
+          page: pagination.currentPage,
+          size: pagination.pageSize
+        }
+      });
+
       if (response.data.success) {
-        setWorkers(response.data.body); 
+        setWorkers(response.data.body.data);
+        setPagination({
+          ...pagination,
+          totalCount: response.data.body.pagination.totalCount,
+          totalPages: response.data.body.pagination.totalPages
+        });
       } else {
         toast.error("Failed to fetch workers");
       }
@@ -46,7 +63,7 @@ const Workers = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${BASE_URL}/user_delete/${id}`); 
+        await axios.delete(`${BASE_URL}/user_delete/${id}`);
         fetchData();
         Swal.fire("Deleted!", "The worker has been deleted.", "success");
       } catch (error) {
@@ -64,7 +81,7 @@ const Workers = () => {
     const newStatus = currentStatus === "1" ? "0" : "1";
 
     try {
-      const response = await axios.post(`${BASE_URL}/userstatus`, { 
+      const response = await axios.post(`${BASE_URL}/userstatus`, {
         id,
         status: newStatus,
       });
@@ -87,6 +104,10 @@ const Workers = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handlePageChange = (page) => {
+    setPagination(prev => ({ ...prev, currentPage: page }));
+  };
+
   const filteredWorkers = workers.filter(worker =>
     worker.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -98,7 +119,7 @@ const Workers = () => {
         <div className="main-content">
           <section className="section">
             <div className="section-header">
-              <h1>Worker List</h1>
+              <h1>Workers</h1>
               <div className="ml-auto">
                 <input
                   type="text"
@@ -133,7 +154,7 @@ const Workers = () => {
                           {filteredWorkers.length > 0 ? (
                             filteredWorkers.map((worker, index) => (
                               <tr key={worker._id}>
-                                <td>{index + 1}</td>
+                                <td>{(pagination.currentPage - 1) * pagination.pageSize + index + 1}</td>
                                 <td>
                                   {worker.image ? (
                                     <img
@@ -199,28 +220,35 @@ const Workers = () => {
                 <div className="card-footer text-right">
                   <nav className="d-inline-block">
                     <ul className="pagination mb-0">
-                      <li className="page-item disabled">
-                        <a className="page-link" href="#" tabIndex={-1}>
+                      <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                        <a
+                          className="page-link"
+                          href="#"
+                          onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        >
                           <i className="fas fa-chevron-left" />
                         </a>
                       </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1 <span className="sr-only">(current)</span>
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
+                      {Array.from({ length: pagination.totalPages }, (_, i) => (
+                        <li
+                          key={i + 1}
+                          className={`page-item ${pagination.currentPage === i + 1 ? 'active' : ''}`}
+                        >
+                          <a
+                            className="page-link"
+                            href="#"
+                            onClick={() => handlePageChange(i + 1)}
+                          >
+                            {i + 1}
+                          </a>
+                        </li>
+                      ))}
+                      <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                        <a
+                          className="page-link"
+                          href="#"
+                          onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        >
                           <i className="fas fa-chevron-right" />
                         </a>
                       </li>

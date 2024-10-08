@@ -11,18 +11,25 @@ const CarList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [cars, setCars] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/carlist`);
-     
+      setLoading(true);
+      const response = await axios.get(`${BASE_URL}/carlist`, {
+        params: { page: currentPage, size: pageSize }
+      });
+
       if (response.data.success) {
-        setCars(response.data.body);
+        setCars(response.data.body.cars || []);
+        setTotalPages(response.data.body.pagination.totalPages || 1);
       } else {
         toast.error('Failed to fetch cars');
       }
@@ -63,11 +70,18 @@ const CarList = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1);  
   };
 
   const filteredCars = cars.filter((car) =>
-    car.carname.toLowerCase().includes(searchTerm.toLowerCase())
+    (car?.carname || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   return (
     <>
@@ -76,8 +90,14 @@ const CarList = () => {
         <div className="main-content">
           <section className="section">
             <div className="section-header">
-              <h1>Car Details</h1>
-              <div className="ml-auto">
+              <h1>Cars</h1>
+              <div className="ml-auto d-flex align-items-center">
+                <button
+                  className="btn btn-primary mr-2"
+                  onClick={() => navigate('/createcar')}
+                >
+                  Add
+                </button>
                 <input
                   type="text"
                   className="form-control"
@@ -109,21 +129,21 @@ const CarList = () => {
                           {filteredCars.length > 0 ? (
                             filteredCars.map((car, index) => (
                               <tr key={car._id}>
-                                <td>{index + 1}</td>
+                                <td>{(currentPage - 1) * pageSize + index + 1}</td>
                                 <td>
                                   {car.image ? (
                                     <img
                                       src={`${BASE_URL}/${car.image}`}
-                                      alt={car.carname}
-                                      style={{ width: '100px', height: '80px', borderRadius: '50%' }}
+                                      alt={car.carname || 'Car Image'}
+                                      style={{ width: '60px', height: '40px', borderRadius: '50%' }}
                                     />
                                   ) : (
                                     'No Image'
                                   )}
                                 </td>
-                                <td>{car.carname}</td>
-                                <td>{car.model}</td>
-                                <td>{car.color}</td>
+                                <td>{car.carname || 'Unknown Car Name'}</td>
+                                <td>{car.model || 'Unknown Model'}</td>
+                                <td>{car.color || 'Unknown Color'}</td>
                                 <td>
                                   <button
                                     onClick={() => navigate(`/carview/${car._id}`)}
@@ -153,33 +173,38 @@ const CarList = () => {
                   )}
                 </div>
                 <div className="card-footer text-right">
-                  {/* Simple pagination (consider adding logic to make it functional) */}
                   <nav className="d-inline-block">
                     <ul className="pagination mb-0">
-                      <li className="page-item disabled">
-                        <a className="page-link" href="#" tabIndex={-1}>
+                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
                           <i className="fas fa-chevron-left" />
-                        </a>
+                        </button>
                       </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1 <span className="sr-only">(current)</span>
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
+                      {[...Array(totalPages)].map((_, index) => (
+                        <li
+                          key={index + 1}
+                          className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                        >
+                          <button
+                            className="page-link"
+                            onClick={() => handlePageChange(index + 1)}
+                          >
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
                           <i className="fas fa-chevron-right" />
-                        </a>
+                        </button>
                       </li>
                     </ul>
                   </nav>

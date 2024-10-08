@@ -8,20 +8,37 @@ import "react-toastify/dist/ReactToastify.css";
 const BASE_URL = "http://localhost:8000";
 
 const Provider = () => {
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [providers, setProviders] = useState([]); 
+  const [providers, setProviders] = useState([]);
+  const [pagination, setPagination] = useState({
+    totalCount: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 5
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [pagination.currentPage]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/provider`);
+      const response = await axios.get(`${BASE_URL}/provider`, {
+        params: {
+          page: pagination.currentPage,
+          size: pagination.pageSize
+        }
+      });
+
       if (response.data.success) {
-        setProviders(response.data.body); 
+        setProviders(response.data.body.data);
+        setPagination({
+          ...pagination,
+          totalCount: response.data.body.pagination.totalCount,
+          totalPages: response.data.body.pagination.totalPages
+        });
       } else {
         toast.error("Failed to fetch providers");
       }
@@ -87,6 +104,10 @@ const Provider = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handlePageChange = (page) => {
+    setPagination(prev => ({ ...prev, currentPage: page }));
+  };
+
   const filteredProviders = providers.filter(provider =>
     provider.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -98,7 +119,7 @@ const Provider = () => {
         <div className="main-content">
           <section className="section">
             <div className="section-header">
-              <h1>Provider List</h1>
+              <h1>Providers</h1>
               <div className="ml-auto">
                 <input
                   type="text"
@@ -133,22 +154,22 @@ const Provider = () => {
                           {filteredProviders.length > 0 ? (
                             filteredProviders.map((provider, index) => (
                               <tr key={provider._id}>
-                                <td>{index + 1}</td>
+                                <td>{(pagination.currentPage - 1) * pagination.pageSize + index + 1}</td>
                                 <td>
-                            {provider.image ? (
-                              <img
-                                src={`${BASE_URL}/${provider.image}`}
-                                alt={`${provider.image}`}
-                                style={{  width:"50px",
-                                  height:"50px",
-                                  borderRadius:'50%'
-                                }}
-                                
-                              />
-                            ) : (
-                              "No Image"
-                            )}
-                          </td>
+                                  {provider.image ? (
+                                    <img
+                                      src={`${BASE_URL}/${provider.image}`}
+                                      alt={`${provider.image}`}
+                                      style={{
+                                        width: "50px",
+                                        height: "50px",
+                                        borderRadius: "50%"
+                                      }}
+                                    />
+                                  ) : (
+                                    "No Image"
+                                  )}
+                                </td>
                                 <td>{provider.name}</td>
                                 <td>{provider.email}</td>
                                 <td>{provider.address}</td>
@@ -190,7 +211,7 @@ const Provider = () => {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan="7" className="text-center">
+                              <td colSpan="8" className="text-center">
                                 No providers found.
                               </td>
                             </tr>
@@ -203,28 +224,35 @@ const Provider = () => {
                 <div className="card-footer text-right">
                   <nav className="d-inline-block">
                     <ul className="pagination mb-0">
-                      <li className="page-item disabled">
-                        <a className="page-link" href="#" tabIndex={-1}>
+                      <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                        <a
+                          className="page-link"
+                          href="#"
+                          onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        >
                           <i className="fas fa-chevron-left" />
                         </a>
                       </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1 <span className="sr-only">(current)</span>
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
+                      {Array.from({ length: pagination.totalPages }, (_, i) => (
+                        <li
+                          key={i + 1}
+                          className={`page-item ${pagination.currentPage === i + 1 ? 'active' : ''}`}
+                        >
+                          <a
+                            className="page-link"
+                            href="#"
+                            onClick={() => handlePageChange(i + 1)}
+                          >
+                            {i + 1}
+                          </a>
+                        </li>
+                      ))}
+                      <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                        <a
+                          className="page-link"
+                          href="#"
+                          onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        >
                           <i className="fas fa-chevron-right" />
                         </a>
                       </li>

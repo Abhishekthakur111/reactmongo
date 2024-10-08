@@ -9,7 +9,7 @@ let category = require('../controller/admincontroller/categeory');
 let service = require('../controller/admincontroller/services');
 let booking = require('../controller/admincontroller/booking');
 let car = require('../controller/admincontroller/car');
-
+let contactus = require('../controller/admincontroller/contactus');
 
 // routes for admincontroller
 router.get('/dashboard',authcontroller.dashboard);
@@ -32,7 +32,6 @@ router.post("/Createuser",usercontroller.user_create);
 router.post('/userstatus',authcontroller.status);
 
 // routes for cms
-
 router.get("/privacy",cmscontroller.privacy_policy);
 router.post("/privacypolicy", cmscontroller.privacypolicy);
 router.get("/aboutus",cmscontroller.aboutus);
@@ -77,6 +76,13 @@ router.post('/createcar', car.createcar);
 router.get('/carlist', car.carlist);
 router.get('/carview/:_id', car.carview);
 router.delete('/delete/:_id', car.delete);
+
+// router for contact us
+router.post('/createcontact', contactus.contact_create);
+router.get('/getcontact',contactus.contact_get);
+router.get('/viewcontact/:_id', contactus.contact_view);
+router.post('/contactstatus', contactus.contact_status);
+router.delete('/contactdelete/:_id', contactus.contact_delete);
 
 
 

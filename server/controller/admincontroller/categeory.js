@@ -35,13 +35,30 @@ module.exports = {
   },
   Categorylist:async(req, res) =>{
    try {
-     const categeory = await Category.find();
-     return helper.success(res, "All categeory details", categeory);
+    const page = parseInt(req.query.page) || 1; 
+    const size = parseInt(req.query.size) || 5; 
+  
+    const skip = (page - 1) * size;
+    const data = await Category.find()
+        .skip(skip)
+        .limit(size);
+    const totalCount = await Category.countDocuments({});
+    const totalPages = Math.ceil(totalCount / size);
+
+    return helper.success(res, "All category Detail", {
+        data,
+        pagination: {
+            totalCount,
+            totalPages,
+            currentPage: page,
+            pageSize: size
+        }
+    });
     } catch (error) {
       console.log(error);
       return helper.error(res, "Internal server error");
     }
-  },
+  },  
   categeoryview: async(req,res)=> {
     try {
         let categeoryview= await Category.findById({_id:req.params._id});

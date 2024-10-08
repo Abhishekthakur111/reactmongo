@@ -41,7 +41,7 @@ function WorkerView() {
         <div className="main-content">
           <section className="section">
             <div className="section-header">
-              <h1>Workers Details</h1>
+              <h1> Details</h1>
             </div>
             <div className="section-body">
               <div className="row">

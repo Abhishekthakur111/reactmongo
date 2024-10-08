@@ -79,6 +79,7 @@ const Navbar = () => {
                 <img
                   alt="avatar"
                   src={image}
+                  style={{height:'  50px', width:'50px'}}
                   className="rounded-circle mr-1"
                 />
                 <div className="d-sm-none d-lg-inline-block"></div>

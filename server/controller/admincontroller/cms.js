@@ -12,10 +12,10 @@ module.exports ={
     },
     privacypolicy: async (req, res) => {
         try {
-            const { title, content } = req.body;
-            let data = await cms.findOneAndUpdate(
+            const {  content } = req.body;
+            let data = await cms.updateOne(
                 { type: '1' }, 
-                { title, content },
+                {  content },
                 { new: true, upsert: true }
             );
             return res.status(200).json({ message: "Privacy policy updated successfully.", data });
@@ -33,20 +33,31 @@ module.exports ={
             return res.status(500).json({messgae:"Internal server error"});
         }
     },
-    updateabout:async(req,res) => {
+     
+    updateabout: async (req, res) => {
         try {
-            const {title , content} = req.body;
-            let data = await cms.findOneAndUpdate({type:2},
-                {title, content},
-                {new: true, upsert:true}
+            const { content } = req.body;
+            if (!content || content.trim() === '') {
+                return res.status(400).json({ message: 'Content field cannot be empty.' });
+            }
+            const result = await cms.updateOne(
+                { type: 2 }, 
+                { $set: { content } } 
             );
-            return res.status(200).json({message:" update about us sucessfully.", data});
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ message: 'Document not found.' });
+            }
+            if (result.modifiedCount === 0) {
+                return res.status(400).json({ message: 'No changes made.' });
+            }
+            return res.status(200).json({ message: "Update About Us successfully." });
         } catch (error) {
-            console.log(error);
-            return res.status(500).json({message:"Internal server error"});
+            console.error("Error updating About Us:", error);
+            return res.status(500).json({ message: "Internal server error" });
         }
-
     },
+    
+    
     term:async(req,res)=>{
         try {
             let data = await cms.findOne({type:3});
@@ -58,9 +69,9 @@ module.exports ={
     },
     updateterm:async(req,res)=> {
         try {
-            const {title, content} = req.body;
-            let data = await cms.findOneAndUpdate({type:3},
-                {title, content},
+            const { content} = req.body;
+            let data = await cms.updateOne({type:3},
+                { content},
                 {new:true, upsert:true},
             );
             return res.status(200).json({message:'Term and conditions......', data});

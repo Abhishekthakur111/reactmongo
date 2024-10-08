@@ -16,18 +16,30 @@ const BookingList = () => {
     { value: "1", label: "Ongoing" },
     { value: "2", label: "Complete" }
   ]);
+  const [pagination, setPagination] = useState({
+    totalCount: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 5
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(pagination.currentPage);
+  }, [pagination.currentPage]);
 
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${BASE_URL}/booking`);
+      const response = await axios.get(`${BASE_URL}/booking`, {
+        params: {
+          page: page,
+          size: pagination.pageSize
+        }
+      });
       if (response.data.success) {
-        setBookings(response.data.body);
+        setBookings(response.data.body.data);
+        setPagination(response.data.body.pagination);
       } else {
         Swal.fire("Error", response.data.message || "Failed to load bookings", "error");
       }
@@ -56,13 +68,19 @@ const BookingList = () => {
       const response = await axios.post(`${BASE_URL}/bookingstatus`, { id: bookingId, status: newStatus });
       if (response.data.success) {
         toast.success("Booking status updated successfully");
-        fetchData(); 
+        fetchData(pagination.currentPage); 
       } else {
         Swal.fire("Error", response.data.message || "Failed to update status", "error");
       }
     } catch (error) {
       console.error("Error updating booking status", error);
       Swal.fire("Error", error.response?.data?.message || "An error occurred while updating the status", "error");
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= pagination.totalPages) {
+      setPagination(prev => ({ ...prev, currentPage: pageNumber }));
     }
   };
 
@@ -83,7 +101,7 @@ const BookingList = () => {
         <div className="main-content">
           <section className="section">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h1>Bookings List</h1>
+              <h1>Bookings </h1>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <input
                   type="text"
@@ -120,7 +138,7 @@ const BookingList = () => {
                           {filteredBookings.length ? (
                             filteredBookings.map((booking, index) => (
                               <tr key={booking._id}>
-                                <td>{index + 1}</td>
+                                <td>{(pagination.currentPage - 1) * pagination.pageSize + index + 1}</td>
                                 <td>{booking.user_id?.name || "name"}</td>
                                 <td>{booking.service_id?.name || "unknown"}</td>
                                 <td>{booking.car_id?.carname}</td>
@@ -152,7 +170,7 @@ const BookingList = () => {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan="11">No bookings found</td>
+                              <td colSpan="9">No bookings found</td>
                             </tr>
                           )}
                         </tbody>
@@ -163,28 +181,20 @@ const BookingList = () => {
                 <div className="card-footer text-right">
                   <nav className="d-inline-block">
                     <ul className="pagination mb-0">
-                      <li className="page-item disabled">
-                        <a className="page-link" href="#" tabIndex={-1}>
+                      <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+                        <a className="page-link" href="#" onClick={() => handlePageChange(pagination.currentPage - 1)}>
                           <i className="fas fa-chevron-left" />
                         </a>
                       </li>
-                      <li className="page-item active">
-                        <a className="page-link" href="#">
-                          1 <span className="sr-only">(current)</span>
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          2
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
-                          3
-                        </a>
-                      </li>
-                      <li className="page-item">
-                        <a className="page-link" href="#">
+                      {[...Array(pagination.totalPages).keys()].map(pageNumber => (
+                        <li key={pageNumber + 1} className={`page-item ${pagination.currentPage === pageNumber + 1 ? 'active' : ''}`}>
+                          <a className="page-link" href="#" onClick={() => handlePageChange(pageNumber + 1)}>
+                            {pageNumber + 1}
+                          </a>
+                        </li>
+                      ))}
+                      <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                        <a className="page-link" href="#" onClick={() => handlePageChange(pagination.currentPage + 1)}>
                           <i className="fas fa-chevron-right" />
                         </a>
                       </li>

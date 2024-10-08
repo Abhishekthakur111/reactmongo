@@ -105,7 +105,7 @@ const Dashboard = () => {
             <div className="col-lg-3 col-md-6 col-sm-6 col-12">
               <div className="card card-statistic-1" onClick={handleWorkerClick}>
                 <div className="card-icon bg-warning" >
-                  <i className="far fa-user" />
+                  <i className="far fa-users" />
                 </div>
                 <div className="card-wrap">
                   <div className="card-header">
@@ -115,7 +115,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="col-lg-3 col-md-6 col-sm-6 col-12">
+            {/* <div className="col-lg-3 col-md-6 col-sm-6 col-12">
               <div className="card card-statistic-1">
                 <div className="card-icon bg-success">
                   <i className="fas fa-circle" />
@@ -127,7 +127,7 @@ const Dashboard = () => {
                   <div className="card-body">47</div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <ApexChart />
         </section>
