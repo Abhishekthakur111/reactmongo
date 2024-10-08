@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const BASE_URL = 'http://localhost:8000';
+
 const ServiceAdd = () => {
   const [data, setData] = useState({
     cat_id: '',
@@ -11,11 +13,26 @@ const ServiceAdd = () => {
     price: '',
     image: null,
   });
+  const [categories, setCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    fetchData();
+  }, []);
 
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/catergeorylist`);
+      if (response.data.success) {
+        setCategories(response.data.body.data);
+      } 
+    } catch (error) {
+      console.error("Error fetching category list", error);
+    }
+  };
+
+  useEffect(() => {
     return () => {
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
@@ -55,7 +72,7 @@ const ServiceAdd = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/createservice', formData, {
+      const response = await axios.post(`${BASE_URL}/createservice`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -127,15 +144,21 @@ const ServiceAdd = () => {
                           </div>
                         </div>
                         <div className="form-group">
-                          <label htmlFor="cat_id">Category ID</label>
-                          <input
-                            type="text"
+                          <label htmlFor="cat_id">Category</label>
+                          <select
                             className="form-control"
                             required
                             name="cat_id"
                             value={data.cat_id}
                             onChange={handleChange}
-                          />
+                          >
+                            <option value="">Select Category</option>
+                            {categories.map((category) => (
+                              <option key={category._id} value={category._id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="form-group">
                           <label htmlFor="name">Name</label>
@@ -170,7 +193,7 @@ const ServiceAdd = () => {
                           Back
                         </button>
                         <button type="submit" className="btn btn-primary">
-                          Add 
+                          Add
                         </button>
                       </div>
                     </form>
