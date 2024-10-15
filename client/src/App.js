@@ -37,7 +37,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route element={<PrivateRoute />}>
           <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} /> 
             <Route path="/userlist" element={<Userlist />} />
             <Route path="/changepassword" element={<ChangePassword />} />
             <Route path="/profile" element={<Profile />} /> 

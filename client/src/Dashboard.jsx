@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [users, setUsers] = useState('');
   const [provider, setProviders] =useState('');
   const [worker, setWorkers] = useState('');
+  const [category, setCategories] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,6 +39,7 @@ const Dashboard = () => {
         setUsers(response.data.body.userCount);
         setProviders(response.data.body.providerCount);
         setWorkers(response.data.body.workerCount);
+        setCategories(response.data.body.category);
       } else {
         toast.error('Failed to fetch dashboard data');
       }
@@ -56,6 +58,10 @@ const Dashboard = () => {
   const handleWorkerClick = () => {
     navigate('/worker');
   };
+  const handlecategory = () => {
+    navigate('/categeorylist');
+  };
+
 
   return (
     <>
@@ -115,19 +121,19 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            {/* <div className="col-lg-3 col-md-6 col-sm-6 col-12">
-              <div className="card card-statistic-1">
+            <div className="col-lg-3 col-md-6 col-sm-6 col-12">
+              <div className="card card-statistic-1" onClick={handlecategory}>
                 <div className="card-icon bg-success">
                   <i className="fas fa-circle" />
                 </div>
                 <div className="card-wrap">
                   <div className="card-header">
-                    <h4>Online Users</h4>
+                    <h4>Categories</h4>
                   </div>
-                  <div className="card-body">47</div>
+                  <div className="card-body">{category}</div>
                 </div>
               </div>
-            </div> */}
+            </div>
           </div>
           <ApexChart />
         </section>

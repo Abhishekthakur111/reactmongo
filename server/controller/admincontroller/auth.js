@@ -1,5 +1,6 @@
 const helper = require("../../helper/helper");
 let user = require("../../models/users");
+let categeory =  require('../../models/categeory');
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 
@@ -9,11 +10,13 @@ module.exports = {
       let userCount = await user.countDocuments({ role: 1 });
       let providerCount = await user.countDocuments({ role: 2 });
       let workerCount = await user.countDocuments({role : 3});
+      let category = await categeory.countDocuments({});
   
       return helper.success(res, "Dashboard data fetched successfully", {
         userCount,
         providerCount,
         workerCount,
+        category,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);

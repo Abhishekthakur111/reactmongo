@@ -4,7 +4,7 @@ import axios from "axios";
 import Swal from 'sweetalert2';
 
 const Navbar = () => {
-  const [image, setImage] = useState('../assets/img/avatar/avatar-1.png');
+  const [image, setImage] = useState('');
   const navigate = useNavigate(); 
 
   useEffect(() => {
